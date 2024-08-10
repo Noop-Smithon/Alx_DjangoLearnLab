@@ -1,10 +1,9 @@
 <h1>Deleting a Book Instance<h1>
 <br>
-<p>from bookshelf.models import Book<p>
-<p>Book.objects.filter(title="Nineteen Eighty-Four").delete()<p>
+<h4>from bookshelf.models import Book<h4>
+<h4>book = Book.objects.get(id="Nineteen Eighty-Four")<h4>
+<h4>book.delete()<h4>
+<h4>Terminal returned: (1, {'bookshelf.Book': 1})<h4>
 <br>
-'''Terminal returned
-(1, {'bookshelf.Book': 1})'''
-Book.objects.all()
-'''Terminal returned
-<QuerySet [<Book:  Title: The gods Cry Too, Author: John Doe, Publication Date: 2001>]>'''
+<h4>Book.objects.all()<h4>
+<h4>Terminal returned: &ltQuerySet []&gt<h4>
