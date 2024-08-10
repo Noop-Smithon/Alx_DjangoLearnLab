@@ -8,4 +8,4 @@
 <h4>book.save()<h4>
 <h4>Book.objects.all()<h4>
 <br>
-<h4>Terminal returned: &ltQuerySet [<Book:  Title: Nineteen Eighty-Four, Author: George Orwell, Publication Date: 1949>]&gt<h4>
+<h4>Terminal returned: &ltQuerySet [&ltBook:  Title: Nineteen Eighty-Four, Author: George Orwell, Publication Date: 1949>]&gt<h4>
