@@ -1,7 +1,7 @@
 <h1>Retrieving a Book Instance<h1>
 <br>
-<p>from bookshelf.models import Book<p>
-<p>Book.objects.filter(title="1984", author="George Orwell")<p>
+<h4>from bookshelf.models import Book<h4>
+<h4>book = Book.objects.get(title="1984")<h4>
+<h4>print(f"Title: {book.title}, Author: {book.author}, Publication Year: {book.publication_year}")<h4>
 <br>
-'''Terminal returned
-<QuerySet [<Book:  Title: 1984, Author: George Orwell, Publication Date: 1949>]>'''
+<h4>Terminal returned: Title: 1984, Author: George Orwell, Publication Year: 1949<h4>
