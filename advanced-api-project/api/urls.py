@@ -1,4 +1,4 @@
-from api.urls import path 
+from .urls import path 
 from .views import BookListView, BookDetailView, BookCreateView, BookUpdateView, BookDeleteView
 
 urlpatterens = [
