@@ -1,17 +1,18 @@
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from django.contrib.auth.models import User
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from .models import Book, Author
 
 class BookAPITests(APITestCase):
     def setUp(self):
-        self.author = Author.objects.create(name="Charles Duhigg")
-        self.book_data = {
-            "title": "The Power of Habit",
-            "publication_year": 2012,
-            "author": self.author.id
-        }
-        self.book = Book.objects.create(**self.book_data)
+        client = APIClient()
+
+        # auth
+        self.user = User.objects.create_user(
+            username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
 
     def test_create_book(self):
         url = reverse('book-create')
@@ -64,7 +65,6 @@ class BookQueryTests(APITestCase):
         self.assertEqual(response.data[0]['title'], 'Book 1')
 
 
-from rest_framework.test import APIClient
 
 class BookPermissionTests(APITestCase):
     def setUp(self):
