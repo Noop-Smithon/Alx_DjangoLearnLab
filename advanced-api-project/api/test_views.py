@@ -1,25 +1,83 @@
-from django.test import APITestCase
+from django.urls import reverse
+from rest_framework.test import APITestCase
+from rest_framework import status
 from .models import Book, Author
-from .serializers import BookSerializer
 
-class BookCreateTest(APITestCase):
+class BookAPITests(APITestCase):
     def setUp(self):
-        self.author = Author.objects.create(name='Chimmamanda Ngozie')
+        self.author = Author.objects.create(name="Charles Duhigg")
+        self.book_data = {
+            "title": "The Power of Habit",
+            "publication_year": 2012,
+            "author": self.author.id
+        }
+        self.book = Book.objects.create(**self.book_data)
 
     def test_create_book(self):
-        data = {
-            'title': 'Purple Hibiscus',
-            'author': self.author,
-            'publication_year': 2006
+        url = reverse('book-create')
+        response = self.client.post(url, self.book_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], self.book_data['title'])
+
+    def test_get_book_list(self):
+        url = reverse('book-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_update_book(self):
+        url = reverse('book-update', kwargs={'pk': self.book.id})
+        updated_data = {"title": "The Real Power of Habit", "publication_year": 2020, "author": self.author.id}
+        response = self.client.put(url, updated_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "The Real Power of Habit")
+
+    def test_delete_book(self):
+        url = reverse('book-delete', kwargs={'pk': self.book.id})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class BookQueryTests(APITestCase):
+    def setUp(self):
+        self.author1 = Author.objects.create(name="Mark Twain")
+        self.author2 = Author.objects.create(name="Eleanor White")
+        Book.objects.create(title="Book 1", publication_year=2020, author=self.author1)
+        Book.objects.create(title="Book 2", publication_year=2021, author=self.author2)
+
+    def test_filter_books_by_author(self):
+        url = reverse('book-list') + '?author__name=Mark Twain'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_search_books_by_title(self):
+        url = reverse('book-list') + '?search=Book 1'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_order_books_by_publication_year(self):
+        url = reverse('book-list') + '?ordering=publication_year'
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['title'], 'Book 1')
+
+
+from rest_framework.test import APIClient
+
+class BookPermissionTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.author = Author.objects.create(name="Charles Duhigg")
+        self.book_data = {
+            "title": "The Power of Habit",
+            "publication_year": 2012,
+            "author": self.author.id
         }
+        self.book = Book.objects.create(**self.book_data)
+        self.url = reverse('book-create')
 
-        #Create New Book
-        serializer = BookSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
-        book = serializer.save()
-
-        #Verify Book Creation
-        self.assertEqual(Book.objects.count(), 1)
-        self.assertEqual(book.title, data['title'])
-        self.assertEqual(book.author.name, self.author.name)
-        self.assertEqual(book.publication_year, data['publication_year'])
+    def test_unauthenticated_create_book(self):
+        response = self.client.post(self.url, self.book_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
